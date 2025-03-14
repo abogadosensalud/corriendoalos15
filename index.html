@@ -1,0 +1,500 @@
+--- START OF FILE index.html ---
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Corriendo a los 15</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f0f0f0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            height: 70vh;
+            max-width: 800px;
+            max-height: 400px;
+        }
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            background: #87CEEB;
+            display: block;
+        }
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #startScreen h1 {
+            font-size: 2em;
+            margin: 0.5em 0;
+        }
+        #startScreen p {
+            font-size: 1.2em;
+            margin: 0.3em 0;
+        }
+        #scoreBoard {
+            margin-top: 10px;
+            font-family: Arial, sans-serif;
+            font-size: 1.2em;
+        }
+        @media (max-width: 600px) {
+            #startScreen h1 {
+                font-size: 1.5em;
+            }
+            #startScreen p {
+                font-size: 1em;
+            }
+            #scoreBoard {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="startScreen">
+            <h1>Corriendo a los 15</h1>
+            <p>Ayudá a Giu a llegar a su fiesta de 15</p>
+            <p>Toca la pantalla para saltar</p>
+            <p>Toca para comenzar</p>
+        </div>
+    </div>
+    <div id="scoreBoard">
+        Puntuación: <span id="score">0</span> | Mejor: <span id="highScore">0</span>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startScreen = document.getElementById('startScreen');
+        const gameContainer = document.getElementById('gameContainer');
+
+        // Definir 'player' antes de usarlo en resizeCanvas
+        const player = {
+            x: 50,
+            y: 0, // Valor inicial temporal, se ajustará en resizeCanvas
+            width: 80,
+            height: 80,
+            dy: 0,
+            jumping: false,
+            frameIndex: 0,
+            tickCount: 0,
+            ticksPerFrame: 8,
+            currentAnimation: 'run',
+            jumpPhase: 0
+        };
+
+        // Ajustar tamaño del canvas dinámicamente
+        function resizeCanvas() {
+            canvas.width = gameContainer.clientWidth;
+            canvas.height = gameContainer.clientHeight;
+            player.y = canvas.height - 100; // Ahora player está definido
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); // Llamada inicial después de definir player
+
+        // Cargar las imágenes de fondo
+        const backgroundImageDay = new Image();
+        backgroundImageDay.src = 'Fondo/Fondo.jpeg'; // Reemplaza con la URL de la imagen de día
+        const backgroundImageSunset = new Image();
+        backgroundImageSunset.src = 'Fondo/Fondo_atardecer.jpeg'; // Reemplaza con la URL de la imagen de atardecer
+        const backgroundImageNight = new Image();
+        backgroundImageNight.src = 'Fondo/Fondo_noche.jpeg'; // Reemplaza con la URL de la imagen de noche
+       
+        let transitionStarted = {
+        2: false, // Para fase 2 (Vestuario)
+        3: false  // Para fase 3 (Salón)
+        };
+
+        let currentBackground = backgroundImageDay; // Fondo inicial
+        let backgroundTransitionProgress = 0;
+        const backgroundTransitionSpeed = 0.02; // Ajusta para la velocidad de transición
+
+        // Cargar la imagen de la escuela
+        const schoolImage = new Image();
+        schoolImage.src = 'Fondo/Saint Jean.png';
+        let schoolX = canvas.width;
+        let schoolVisible = false;
+        let schoolWidth = 200;
+        let schoolHeight = 200;
+
+        // Variables del juego
+        let gameStarted = false;
+        let score = 0;
+        let highScore = localStorage.getItem('highScore') || 0;
+        let gameSpeed = 5;
+        let gravity = 0.5;
+        let lastObstacleTime = 0;
+        let minObstacleGap = 60;
+        let gameTime = 0;
+
+        // Sprites del jugador
+        const playerSprites = {
+            run: {
+                image: new Image(),
+                frameCount: 6,
+                framesPerRow: 2,
+                spriteWidth: 2048 / 2,
+                spriteHeight: 3072 / 3
+            },
+            jump: {
+                image: new Image(),
+                frameCount: 4,
+                framesPerRow: 2,
+                spriteWidth: 2048 / 2,
+                spriteHeight: 2048 / 2
+            }
+        };
+
+        playerSprites.run.image.src = "Sprites/sprites_giu_corriendo.png";
+        playerSprites.jump.image.src = "Sprites/sprites_giu_saltando (1).png";
+
+        // Globos (Obstáculos)
+        const balloonImage = new Image();
+        balloonImage.src = "Enemigos/balloons.png";
+        const numBalloonsPerRow = 3;
+        const numBalloonsPerCol = 3;
+        const balloonSpriteWidth = 1024 / numBalloonsPerRow;
+        const balloonSpriteHeight = 1024 / numBalloonsPerCol;
+
+        // Torta (Obstáculo)
+        const cakeImage = new Image();
+        cakeImage.src = "Enemigos/cakes.png"; // Reemplaza con tu imagen de tortas
+        const numCakesPerRow = 3; // Numero de tortas por fila en la imagen
+        const cakeSpriteWidth = 1024 / numCakesPerRow; // Ancho de cada torta en la imagen
+        const cakeSpriteHeight = 1024 / numCakesPerRow; // Alto de cada torta en la imagen
+
+        // Obstáculos y fases
+        let obstacles = [];
+        let phase = 0;
+        const phases = [
+            { name: 'Peluquería', difficulty: 1, color: '#FFB6C1' }, // Fase 0: Fondo de día
+            { name: 'Maquillaje', difficulty: 1.5, color: '#98FB98' },   // Fase 1: Fondo de día
+            { name: 'Vestuario', difficulty: 2, color: '#DDA0DD' },    // Fase 2: Transición a atardecer
+            { name: 'Salón', difficulty: 2.5, color: '#FFD700' }       // Fase 3: Transición a noche
+        ];
+
+        const phaseObstacles = {
+    0: [
+        { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 0 },
+        { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 1 },
+        { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
+    ],
+    1: [
+        { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 2 },
+        { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 3 },
+        { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
+    ],
+    2: [
+        { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 4 },
+        { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 5 },
+        { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
+    ],
+    3: [
+        { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 6 },
+        { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 7 },
+        { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
+    ]
+};
+
+
+        let phaseDistance = 0;
+        let nextPhaseAt = 1000;
+
+        // Controles para PC y móvil
+function jump() {
+    if (!gameStarted) {
+        startGame();
+    } else if (!player.jumping) {
+        player.jumping = true;
+        player.dy = -12;
+        player.currentAnimation = 'jump';
+        player.frameIndex = 0;
+        player.jumpPhase = 0;
+    }
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') {
+        jump();
+    }
+});
+
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    jump();
+});
+
+canvas.addEventListener('mousedown', (e) => {
+    jump();
+});
+
+        function startGame() {
+            gameStarted = true;
+            startScreen.style.display = 'none';
+            gameTime = 0;
+            schoolVisible = false;
+            currentBackground = backgroundImageDay;
+            backgroundTransitionProgress = 0;
+            gameLoop();
+        }
+
+        function spawnObstacle() {
+            if (phase >= phases.length) return;
+            const availableObstacles = phaseObstacles[phase];
+            const obstacleTemplate = availableObstacles[Math.floor(Math.random() * availableObstacles.length)];
+            const obstacle = {
+                x: canvas.width,
+                y: obstacleTemplate.y,
+                width: obstacleTemplate.width,
+                height: obstacleTemplate.height,
+                type: obstacleTemplate.type
+            };
+
+            if (obstacleTemplate.type === 'globo') {
+                obstacle.balloonIndex = obstacleTemplate.balloonIndex;
+            } else if (obstacleTemplate.type === 'torta') {
+                obstacle.cakeIndex = Math.floor(Math.random() * 9); // Selecciona un índice de torta aleatorio (0-8)
+            }
+
+            obstacles.push(obstacle);
+        }
+
+        function showSchool() {
+            schoolX = canvas.width;
+            schoolVisible = true;
+        }
+
+        function updateJumpAnimation() {
+            const jumpHeight = player.y;
+            const initialY = canvas.height - 100;
+            const maxJumpHeight = initialY - 100;
+
+            if (jumpHeight > initialY - 20) {
+                player.jumpPhase = 0;
+            } else if (player.dy < 0) {
+                player.jumpPhase = 1;
+            } else if (Math.abs(player.dy) < 2) {
+                player.jumpPhase = 2;
+            } else {
+                player.jumpPhase = 3;
+            }
+            player.frameIndex = player.jumpPhase;
+        }
+
+        function updateBackground() {
+    console.log("updateBackground called. Phase:", phase, "Current background:", currentBackground);
+
+    if (phase === 2 && !transitionStarted[2]) {
+        console.log("Setting background to Sunset");
+        currentBackground = backgroundImageSunset;
+        transitionStarted[2] = true;
+    } else if (phase === 3 && !transitionStarted[3]) {
+        console.log("Setting background to Night");
+        currentBackground = backgroundImageNight;
+        transitionStarted[3] = true;
+    }
+}
+
+        function update() {
+            if (!gameStarted) return;
+
+            gameTime++;
+            score++;
+            phaseDistance++;
+            document.getElementById('score').textContent = score;
+
+            if (phaseDistance >= nextPhaseAt && phase < phases.length) {
+                gameSpeed *= phases[phase].difficulty;
+                phase++;
+                phaseDistance = 0;
+                nextPhaseAt *= 1.5;
+                updateBackground(); // Actualizar fondo al cambiar de fase
+            }
+
+            const showSchoolInitialTime = 15 * 60;
+            const showSchoolRepeatTime = 50 * 60;
+            if (gameTime === showSchoolInitialTime || (gameTime > showSchoolInitialTime && (gameTime - showSchoolInitialTime) % showSchoolRepeatTime === 0)) {
+                showSchool();
+            }
+
+            if (schoolVisible) {
+                schoolX -= gameSpeed * 0.5;
+                if (schoolX < -schoolWidth) {
+                    schoolVisible = false;
+                }
+            }
+
+            player.tickCount++;
+            if (player.tickCount > player.ticksPerFrame) {
+                player.tickCount = 0;
+                if (!player.jumping) {
+                    player.frameIndex = (player.frameIndex + 1) % playerSprites.run.frameCount;
+                    player.currentAnimation = 'run';
+                } else {
+                    updateJumpAnimation();
+                }
+            }
+
+            if (player.jumping) {
+                player.y += player.dy;
+                player.dy += gravity;
+                if (player.y >= canvas.height - 100) {
+                    player.y = canvas.height - 100;
+                    player.jumping = false;
+                    player.dy = 0;
+                    player.currentAnimation = 'run';
+                    player.frameIndex = 0;
+                }
+            }
+
+            lastObstacleTime++;
+            if (Math.random() < 0.015 * (phase + 1) && lastObstacleTime > minObstacleGap) {
+                spawnObstacle();
+                lastObstacleTime = 0;
+            }
+
+            obstacles = obstacles.filter(obs => obs.x > -obs.width);
+            obstacles.forEach(obs => {
+                obs.x -= gameSpeed;
+
+                 // Definir márgenes para la colisión
+                 const marginX = 10; // Margen horizontal
+                 const marginY = 10; // Margen vertical
+               if (player.x + marginX < obs.x + obs.width &&
+                   player.x + player.width - marginX > obs.x &&
+                   player.y + marginY < obs.y + obs.height &&
+                   player.y + player.height - marginY > obs.y) {
+                   endGame();
+               }
+
+            });
+        }
+
+        function drawBackground() {
+    ctx.drawImage(currentBackground, 0, 0, canvas.width, canvas.height);
+}
+
+
+        function draw() {
+            drawBackground();
+
+            if (schoolVisible) {
+                ctx.drawImage(schoolImage, schoolX, canvas.height - schoolHeight - 40, schoolWidth, schoolHeight);
+            }
+
+            ctx.fillStyle = '#666';
+            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+
+            const currentSprite = playerSprites[player.currentAnimation];
+            const col = player.frameIndex % currentSprite.framesPerRow;
+            const row = Math.floor(player.frameIndex / currentSprite.framesPerRow);
+            const frameX = col * currentSprite.spriteWidth;
+            const frameY = row * currentSprite.spriteHeight;
+
+            ctx.drawImage(
+                currentSprite.image,
+                frameX, frameY,
+                currentSprite.spriteWidth, currentSprite.spriteHeight,
+                player.x, player.y,
+                player.width, player.height
+            );
+
+            obstacles.forEach(obs => {
+                if (obs.type === 'globo') {
+                    const balloonCol = obs.balloonIndex % numBalloonsPerRow;
+                    const balloonRow = Math.floor(obs.balloonIndex / numBalloonsPerRow);
+                    const sourceX = balloonCol * balloonSpriteWidth;
+                    const sourceY = balloonRow * balloonSpriteHeight;
+
+                    ctx.drawImage(
+                        balloonImage,
+                        sourceX, sourceY,
+                        balloonSpriteWidth, balloonSpriteHeight,
+                        obs.x, obs.y,
+                        obs.width, obs.height
+                    );
+                } else if (obs.type === 'torta') {
+                    const cakeIndex = obs.cakeIndex;
+                    const cakeCol = cakeIndex % numCakesPerRow;
+                    const cakeRow = Math.floor(cakeIndex / numCakesPerRow);
+
+                    const sourceX = cakeCol * cakeSpriteWidth;
+                    const sourceY = cakeRow * cakeSpriteHeight;
+
+                    ctx.drawImage(
+                        cakeImage,
+                        sourceX, sourceY,
+                        cakeSpriteWidth, cakeSpriteHeight,
+                        obs.x, obs.y,
+                        obs.width, obs.height
+                    );
+                }
+            });
+
+            ctx.fillStyle = '#000';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Fase: ${phases[Math.min(phase, phases.length - 1)].name}`, 10, 30);
+        }
+
+        function endGame() {
+            gameStarted = false;
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore', highScore);
+            }
+            document.getElementById('highScore').textContent = highScore;
+            startScreen.style.display = 'flex';
+            startScreen.innerHTML = `
+                <h1>¡Fin del juego!</h1>
+                <p>Puntuación: ${score}</p>
+                <p>Mejor: ${highScore}</p>
+                <p>Toca para reintentar</p>
+            `;
+            score = 0;
+            obstacles = [];
+            phase = 0;
+            gameSpeed = 5;
+            phaseDistance = 0;
+            nextPhaseAt = 1000;
+            lastObstacleTime = 0;
+            player.frameIndex = 0;
+            player.currentAnimation = 'run';
+            player.jumping = false;
+            player.y = canvas.height - 100;
+            schoolVisible = false;
+        }
+
+        function gameLoop() {
+            if (!gameStarted) return;
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        document.getElementById('highScore').textContent = highScore;
+    </script>
+</body>
+</html>
