@@ -223,10 +223,10 @@
         let phaseDistance = 0;
         let nextPhaseAt = 1000;
 
-        // Controles para PC y móvil
+ // Controles para PC y móvil
 function jump() {
     if (!gameStarted) {
-        startGame();
+        startGame(); // Iniciar el juego al tocar la pantalla
     } else if (!player.jumping) {
         player.jumping = true;
         player.dy = -12;
@@ -249,6 +249,15 @@ canvas.addEventListener('touchstart', (e) => {
 
 canvas.addEventListener('mousedown', (e) => {
     jump();
+});
+
+startScreen.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    startGame();
+});
+
+startScreen.addEventListener('mousedown', (e) => {
+    startGame();
 });
 
         function startGame() {
