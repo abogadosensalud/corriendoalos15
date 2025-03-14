@@ -1,88 +1,366 @@
---- START OF FILE index.html ---
-
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <title>Corriendo a los 15</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;700&display=swap');
+        
+        :root {
+            --primary: #ff6b9d;
+            --secondary: #9d4edd;
+            --accent: #ffd166;
+            --background: #f8f9fa;
+            --text: #333;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent; /* Elimina el resaltado al tocar en móviles */
+        }
+        
         body {
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            background: #f0f0f0;
-            height: 100vh;
+            justify-content: center;
+            background: var(--background);
+            min-height: 100vh;
+            font-family: 'Montserrat', sans-serif;
             overflow: hidden;
+            background-image: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            touch-action: manipulation; /* Mejora la respuesta táctil */
         }
+        
         #gameContainer {
             position: relative;
             width: 100%;
-            height: 70vh;
+            height: 65vh; /* Ajustado para mejor visualización en móviles */
             max-width: 800px;
-            max-height: 400px;
+            max-height: 500px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin: 10px; /* Reducido para móviles */
         }
+        
         #gameCanvas {
             width: 100%;
             height: 100%;
             background: #87CEEB;
             display: block;
         }
+        
         #startScreen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.9), rgba(255, 107, 157, 0.9));
             color: white;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-family: Arial, sans-serif;
             text-align: center;
             padding: 20px;
-            box-sizing: border-box;
+            transition: opacity 0.5s ease;
         }
+        
         #startScreen h1 {
-            font-size: 2em;
-            margin: 0.5em 0;
+            font-family: 'Dancing Script', cursive;
+            font-size: 3.5em;
+            margin: 0.3em 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s infinite;
         }
+        
         #startScreen p {
             font-size: 1.2em;
-            margin: 0.3em 0;
+            margin: 0.5em 0;
+            max-width: 80%;
         }
-        #scoreBoard {
-            margin-top: 10px;
-            font-family: Arial, sans-serif;
+        
+        #startButton {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background-color: var(--accent);
+            color: var(--text);
+            border: none;
+            border-radius: 50px;
             font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
-        @media (max-width: 600px) {
-            #startScreen h1 {
-                font-size: 1.5em;
+        
+        #startButton:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        #startButton:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        #scoreBoard {
+            background-color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--text);
+            display: flex;
+            gap: 15px;
+            width: 90%; /* Ajustado para móviles */
+            max-width: 400px;
+            justify-content: center;
+        }
+        
+        .score-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .score-value {
+            color: var(--primary);
+        }
+        
+        .phase-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: var(--text);
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.9em; /* Ajustado para móviles */
+        }
+        
+        .phase-name {
+            color: var(--secondary);
+        }
+        
+        .decorations {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .decoration {
+            position: absolute;
+            opacity: 0.7;
+        }
+        
+        .balloon {
+            width: 30px;
+            height: 40px;
+            background-color: var(--primary);
+            border-radius: 50%;
+            animation: float 5s infinite ease-in-out;
+        }
+        
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 13px;
+            width: 4px;
+            height: 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .confetti {
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            transform: rotate(45deg);
+            animation: fall 8s infinite linear;
+        }
+        
+        /* Botón de salto para móviles */
+        #jumpButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: rgba(255, 107, 157, 0.7);
+            border-radius: 50%;
+            display: none; /* Oculto por defecto, se muestra en móviles */
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 24px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            border: none;
+            outline: none;
+        }
+        
+        #jumpButton:active {
+            transform: scale(0.95);
+        }
+        
+        /* Indicador de orientación para móviles */
+        #orientationMessage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        
+        #orientationMessage img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            animation: rotate 2s infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(90deg); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-100px) rotate(45deg); }
+            100% { transform: translateY(500px) rotate(405deg); }
+        }
+        
+        /* Media queries mejoradas para dispositivos móviles */
+        @media (max-width: 768px) {
+            #gameContainer {
+                height: 60vh;
+                margin: 5px;
+                border-radius: 8px;
             }
+            
+            #startScreen h1 {
+                font-size: 2.5em;
+            }
+            
             #startScreen p {
                 font-size: 1em;
             }
+            
             #scoreBoard {
                 font-size: 1em;
+                padding: 8px 15px;
+            }
+            
+            #startButton {
+                padding: 10px 25px;
+                font-size: 1em;
+            }
+            
+            #jumpButton {
+                display: flex;
+            }
+        }
+        
+        /* Para pantallas muy pequeñas */
+        @media (max-width: 360px) {
+            #startScreen h1 {
+                font-size: 2em;
+            }
+            
+            #startScreen p {
+                font-size: 0.9em;
+            }
+            
+            .phase-indicator {
+                font-size: 0.8em;
+                padding: 5px 10px;
+            }
+        }
+        
+        /* Para pantallas en modo retrato */
+        @media (orientation: portrait) and (max-width: 600px) {
+            #gameContainer {
+                height: 50vh;
+            }
+        }
+        
+        /* Para pantallas en modo paisaje */
+        @media (orientation: landscape) and (max-height: 500px) {
+            #gameContainer {
+                height: 70vh;
+            }
+            
+            #scoreBoard {
+                margin-top: 5px;
             }
         }
     </style>
 </head>
 <body>
     <div id="gameContainer">
+        <div class="decorations" id="decorations"></div>
         <canvas id="gameCanvas"></canvas>
+        <div class="phase-indicator" id="phaseIndicator">
+            Fase: <span class="phase-name" id="phaseName">Peluquería</span>
+        </div>
         <div id="startScreen">
             <h1>Corriendo a los 15</h1>
             <p>Ayudá a Giu a llegar a su fiesta de 15</p>
-            <p>Toca la pantalla para saltar</p>
-            <p>Toca para comenzar</p>
+            <p>¡Esquiva los obstáculos y llega a tiempo!</p>
+            <button id="startButton">¡COMENZAR!</button>
         </div>
     </div>
     <div id="scoreBoard">
-        Puntuación: <span id="score">0</span> | Mejor: <span id="highScore">0</span>
+        <div class="score-item">
+            Puntuación: <span class="score-value" id="score">0</span>
+        </div>
+        <div class="score-item">
+            Mejor: <span class="score-value" id="highScore">0</span>
+        </div>
+    </div>
+    
+    <!-- Botón de salto para móviles -->
+    <button id="jumpButton">↑</button>
+    
+    <!-- Mensaje de orientación para móviles -->
+    <div id="orientationMessage">
+        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1yb3RhdGUtY3ciPjxwb2x5bGluZSBwb2ludHM9IjEgNCAxIDEwIDcgMTAiPjwvcG9seWxpbmU+PHBhdGggZD0iTTMuNTEgMTVhOSA5IDAgMSAwIDIuMTMtOS4zNkwxIDEwIj48L3BhdGg+PC9zdmc+" alt="Rotar dispositivo">
+        <p>Para una mejor experiencia, gira tu dispositivo a modo horizontal</p>
+        <button id="dismissOrientation">Continuar de todos modos</button>
     </div>
 
     <script>
@@ -90,30 +368,71 @@
         const ctx = canvas.getContext('2d');
         const startScreen = document.getElementById('startScreen');
         const gameContainer = document.getElementById('gameContainer');
-
-        // Definir 'player' antes de usarlo en resizeCanvas
-        const player = {
-            x: 50,
-            y: 0, // Valor inicial temporal, se ajustará en resizeCanvas
-            width: 80,
-            height: 80,
-            dy: 0,
-            jumping: false,
-            frameIndex: 0,
-            tickCount: 0,
-            ticksPerFrame: 8,
-            currentAnimation: 'run',
-            jumpPhase: 0
-        };
-
-        // Ajustar tamaño del canvas dinámicamente
-        function resizeCanvas() {
-            canvas.width = gameContainer.clientWidth;
-            canvas.height = gameContainer.clientHeight;
-            player.y = canvas.height - 100; // Ahora player está definido
+        const startButton = document.getElementById('startButton');
+        const phaseIndicator = document.getElementById('phaseIndicator');
+        const phaseName = document.getElementById('phaseName');
+        const decorationsContainer = document.getElementById('decorations');
+        const jumpButton = document.getElementById('jumpButton');
+        const orientationMessage = document.getElementById('orientationMessage');
+        const dismissOrientationButton = document.getElementById('dismissOrientation');
+        
+        // Detectar si es un dispositivo móvil
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // Mostrar mensaje de orientación en dispositivos móviles en modo retrato
+        function checkOrientation() {
+            if (isMobile && window.innerHeight > window.innerWidth && window.innerWidth < 600) {
+                orientationMessage.style.display = 'flex';
+            } else {
+                orientationMessage.style.display = 'none';
+            }
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas(); // Llamada inicial después de definir player
+        
+        // Comprobar orientación al cargar y al cambiar el tamaño de la ventana
+        window.addEventListener('load', checkOrientation);
+        window.addEventListener('resize', checkOrientation);
+        
+        // Botón para descartar el mensaje de orientación
+        dismissOrientationButton.addEventListener('click', function() {
+            orientationMessage.style.display = 'none';
+        });
+
+        // Crear decoraciones
+        function createDecorations() {
+            decorationsContainer.innerHTML = '';
+            
+            // Limitar el número de decoraciones en dispositivos móviles para mejorar el rendimiento
+            const numBalloons = isMobile ? 3 : 5;
+            const numConfetti = isMobile ? 8 : 15;
+            
+            // Crear globos decorativos
+            for (let i = 0; i < numBalloons; i++) {
+                const balloon = document.createElement('div');
+                balloon.className = 'decoration balloon';
+                balloon.style.left = `${Math.random() * 100}%`;
+                balloon.style.top = `${Math.random() * 50}%`;
+                balloon.style.backgroundColor = getRandomColor();
+                balloon.style.animationDelay = `${Math.random() * 5}s`;
+                decorationsContainer.appendChild(balloon);
+            }
+            
+            // Crear confeti
+            for (let i = 0; i < numConfetti; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'decoration confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.animationDelay = `${Math.random() * 8}s`;
+                decorationsContainer.appendChild(confetti);
+            }
+        }
+        
+        function getRandomColor() {
+            const colors = ['#ff6b9d', '#9d4edd', '#ffd166', '#06d6a0', '#118ab2'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        createDecorations();
 
         // Cargar las imágenes de fondo
         const backgroundImageDay = new Image();
@@ -124,8 +443,8 @@
         backgroundImageNight.src = 'Fondo/Fondo_noche.jpeg'; // Reemplaza con la URL de la imagen de noche
        
         let transitionStarted = {
-        2: false, // Para fase 2 (Vestuario)
-        3: false  // Para fase 3 (Salón)
+            2: false, // Para fase 2 (Vestuario)
+            3: false  // Para fase 3 (Salón)
         };
 
         let currentBackground = backgroundImageDay; // Fondo inicial
@@ -196,90 +515,200 @@
             { name: 'Salón', difficulty: 2.5, color: '#FFD700' }       // Fase 3: Transición a noche
         ];
 
-        const phaseObstacles = {
-    0: [
-        { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 0 },
-        { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 1 },
-        { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
-    ],
-    1: [
-        { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 2 },
-        { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 3 },
-        { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
-    ],
-    2: [
-        { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 4 },
-        { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 5 },
-        { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
-    ],
-    3: [
-        { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 6 },
-        { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 7 },
-        { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
-    ]
-};
+        // Definir 'player' antes de usarlo en resizeCanvas
+        const player = {
+            x: 50,
+            y: 0, // Valor inicial temporal, se ajustará en resizeCanvas
+            width: 80,
+            height: 80,
+            dy: 0,
+            jumping: false,
+            frameIndex: 0,
+            tickCount: 0,
+            ticksPerFrame: 8,
+            currentAnimation: 'run',
+            jumpPhase: 0
+        };
 
+        // Definir phaseObstacles ANTES de usarlo en updateObstaclePositions
+        const phaseObstacles = [
+            [
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 0 },
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 1 },
+                { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
+            ],
+            [
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 2 },
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 3 },
+                { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
+            ],
+            [
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 4 },
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 5 },
+                { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
+            ],
+            [
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 6 },
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 7 },
+                { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
+            ]
+        ];
 
         let phaseDistance = 0;
         let nextPhaseAt = 1000;
 
- // Controles para PC y móvil
-function jump() {
-    if (!gameStarted) {
-        startGame(); // Iniciar el juego al tocar la pantalla
-    } else if (!player.jumping) {
-        player.jumping = true;
-        player.dy = -12;
-        player.currentAnimation = 'jump';
-        player.frameIndex = 0;
-        player.jumpPhase = 0;
-    }
-}
+        // Función para actualizar posiciones de obstáculos
+        function updateObstaclePositions() {
+            // Actualizar las posiciones Y de los obstáculos basados en la nueva altura del canvas
+            phaseObstacles.forEach((obstacles, phaseIndex) => {
+                obstacles.forEach(obstacle => {
+                    if (obstacle.high) {
+                        obstacle.y = canvas.height - 180;
+                    } else {
+                        obstacle.y = canvas.height - 70;
+                    }
+                    
+                    if (obstacle.type === 'torta') {
+                        obstacle.y = canvas.height - 100;
+                    }
+                });
+            });
+            
+            // Actualizar obstáculos existentes
+            obstacles.forEach(obs => {
+                if (obs.high) {
+                    obs.y = canvas.height - 180;
+                } else if (obs.type === 'globo') {
+                    obs.y = canvas.height - 70;
+                } else if (obs.type === 'torta') {
+                    obs.y = canvas.height - 100;
+                }
+            });
+        }
 
-document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space') {
-        jump();
-    }
-});
+        // Ajustar tamaño del canvas dinámicamente
+        function resizeCanvas() {
+            canvas.width = gameContainer.clientWidth;
+            canvas.height = gameContainer.clientHeight;
+            player.y = canvas.height - 100; // Ahora player está definido
+            
+            // Ajustar tamaños para dispositivos móviles
+            if (isMobile) {
+                // Hacer el personaje un poco más grande en pantallas pequeñas para mejor visibilidad
+                const screenWidthRatio = Math.min(1, window.innerWidth / 768);
+                player.width = Math.max(60, 80 * screenWidthRatio);
+                player.height = Math.max(60, 80 * screenWidthRatio);
+            }
+            
+            // Actualizar posiciones de obstáculos si es necesario
+            updateObstaclePositions();
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas(); // Llamada inicial después de definir player
 
-canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    jump();
-});
+        // Controles para PC y móvil
+        function jump() {
+            if (!gameStarted) {
+                startGame(); // Iniciar el juego al tocar la pantalla
+            } else if (!player.jumping) {
+                player.jumping = true;
+                player.dy = -12;
+                player.currentAnimation = 'jump';
+                player.frameIndex = 0;
+                player.jumpPhase = 0;
+            }
+        }
 
-canvas.addEventListener('mousedown', (e) => {
-    jump();
-});
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                jump();
+            }
+        });
 
-startScreen.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    startGame();
-});
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            jump();
+        });
 
-startScreen.addEventListener('mousedown', (e) => {
-    startGame();
-});
+        canvas.addEventListener('mousedown', (e) => {
+            jump();
+        });
+        
+        // Botón de salto para móviles
+        jumpButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            jump();
+        });
+        
+        jumpButton.addEventListener('mousedown', (e) => {
+            jump();
+        });
+
+        startButton.addEventListener('click', startGame);
+        startScreen.addEventListener('touchstart', (e) => {
+            if (e.target === startButton) {
+                e.preventDefault();
+                startGame();
+            }
+        });
 
         function startGame() {
             gameStarted = true;
-            startScreen.style.display = 'none';
+            startScreen.style.opacity = '0';
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+            }, 500);
+            
             gameTime = 0;
+            score = 0;
+            phase = 0;
+            obstacles = [];
+            phaseDistance = 0;
+            nextPhaseAt = 1000;
+            gameSpeed = 5;
+            
             schoolVisible = false;
             currentBackground = backgroundImageDay;
             backgroundTransitionProgress = 0;
+            
+            // Actualizar el indicador de fase
+            updatePhaseIndicator();
+            
+            // Iniciar el bucle del juego
             gameLoop();
+        }
+
+        function updatePhaseIndicator() {
+            const currentPhase = phases[Math.min(phase, phases.length - 1)];
+            phaseName.textContent = currentPhase.name;
+            phaseName.style.color = currentPhase.color;
         }
 
         function spawnObstacle() {
             if (phase >= phases.length) return;
-            const availableObstacles = phaseObstacles[phase];
+            
+            const phaseIndex = Math.min(phase, phases.length - 1);
+            const availableObstacles = phaseObstacles[phaseIndex];
             const obstacleTemplate = availableObstacles[Math.floor(Math.random() * availableObstacles.length)];
+            
+            // Ajustar tamaño de obstáculos para móviles
+            let obstacleWidth = obstacleTemplate.width;
+            let obstacleHeight = obstacleTemplate.height;
+            
+            if (isMobile && window.innerWidth < 500) {
+                // Hacer obstáculos un poco más grandes en pantallas pequeñas
+                obstacleWidth = Math.floor(obstacleWidth * 1.2);
+                obstacleHeight = Math.floor(obstacleHeight * 1.2);
+            }
+            
             const obstacle = {
                 x: canvas.width,
                 y: obstacleTemplate.y,
-                width: obstacleTemplate.width,
-                height: obstacleTemplate.height,
-                type: obstacleTemplate.type
+                width: obstacleWidth,
+                height: obstacleHeight,
+                type: obstacleTemplate.type,
+                high: obstacleTemplate.high
             };
 
             if (obstacleTemplate.type === 'globo') {
@@ -314,18 +743,14 @@ startScreen.addEventListener('mousedown', (e) => {
         }
 
         function updateBackground() {
-    console.log("updateBackground called. Phase:", phase, "Current background:", currentBackground);
-
-    if (phase === 2 && !transitionStarted[2]) {
-        console.log("Setting background to Sunset");
-        currentBackground = backgroundImageSunset;
-        transitionStarted[2] = true;
-    } else if (phase === 3 && !transitionStarted[3]) {
-        console.log("Setting background to Night");
-        currentBackground = backgroundImageNight;
-        transitionStarted[3] = true;
-    }
-}
+            if (phase === 2 && !transitionStarted[2]) {
+                currentBackground = backgroundImageSunset;
+                transitionStarted[2] = true;
+            } else if (phase === 3 && !transitionStarted[3]) {
+                currentBackground = backgroundImageNight;
+                transitionStarted[3] = true;
+            }
+        }
 
         function update() {
             if (!gameStarted) return;
@@ -341,6 +766,7 @@ startScreen.addEventListener('mousedown', (e) => {
                 phaseDistance = 0;
                 nextPhaseAt *= 1.5;
                 updateBackground(); // Actualizar fondo al cambiar de fase
+                updatePhaseIndicator(); // Actualizar indicador de fase
             }
 
             const showSchoolInitialTime = 15 * 60;
@@ -380,7 +806,9 @@ startScreen.addEventListener('mousedown', (e) => {
             }
 
             lastObstacleTime++;
-            if (Math.random() < 0.015 * (phase + 1) && lastObstacleTime > minObstacleGap) {
+            // Ajustar la frecuencia de obstáculos para móviles
+            const obstacleFrequency = isMobile ? 0.012 : 0.015;
+            if (Math.random() < obstacleFrequency * (phase + 1) && lastObstacleTime > minObstacleGap) {
                 spawnObstacle();
                 lastObstacleTime = 0;
             }
@@ -389,23 +817,22 @@ startScreen.addEventListener('mousedown', (e) => {
             obstacles.forEach(obs => {
                 obs.x -= gameSpeed;
 
-                 // Definir márgenes para la colisión
-                 const marginX = 10; // Margen horizontal
-                 const marginY = 10; // Margen vertical
-               if (player.x + marginX < obs.x + obs.width &&
-                   player.x + player.width - marginX > obs.x &&
-                   player.y + marginY < obs.y + obs.height &&
-                   player.y + player.height - marginY > obs.y) {
-                   endGame();
-               }
-
+                // Definir márgenes para la colisión
+                // Hacer la colisión un poco más permisiva en móviles
+                const marginX = isMobile ? 15 : 10; // Margen horizontal
+                const marginY = isMobile ? 15 : 10; // Margen vertical
+                if (player.x + marginX < obs.x + obs.width &&
+                    player.x + player.width - marginX > obs.x &&
+                    player.y + marginY < obs.y + obs.height &&
+                    player.y + player.height - marginY > obs.y) {
+                    endGame();
+                }
             });
         }
 
         function drawBackground() {
-    ctx.drawImage(currentBackground, 0, 0, canvas.width, canvas.height);
-}
-
+            ctx.drawImage(currentBackground, 0, 0, canvas.width, canvas.height);
+        }
 
         function draw() {
             drawBackground();
@@ -414,8 +841,23 @@ startScreen.addEventListener('mousedown', (e) => {
                 ctx.drawImage(schoolImage, schoolX, canvas.height - schoolHeight - 40, schoolWidth, schoolHeight);
             }
 
-            ctx.fillStyle = '#666';
+            // Dibujar el suelo
+            const groundGradient = ctx.createLinearGradient(0, canvas.height - 40, 0, canvas.height);
+            groundGradient.addColorStop(0, '#8B4513');
+            groundGradient.addColorStop(1, '#654321');
+            ctx.fillStyle = groundGradient;
             ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+            
+            // Dibujar líneas en el suelo para dar efecto de movimiento
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < canvas.width; i += 30) {
+                const offset = (gameTime * gameSpeed) % 30;
+                ctx.beginPath();
+                ctx.moveTo(i - offset, canvas.height - 40);
+                ctx.lineTo(i - offset + 15, canvas.height - 40);
+                ctx.stroke();
+            }
 
             const currentSprite = playerSprites[player.currentAnimation];
             const col = player.frameIndex % currentSprite.framesPerRow;
@@ -462,10 +904,6 @@ startScreen.addEventListener('mousedown', (e) => {
                     );
                 }
             });
-
-            ctx.fillStyle = '#000';
-            ctx.font = '20px Arial';
-            ctx.fillText(`Fase: ${phases[Math.min(phase, phases.length - 1)].name}`, 10, 30);
         }
 
         function endGame() {
@@ -475,13 +913,19 @@ startScreen.addEventListener('mousedown', (e) => {
                 localStorage.setItem('highScore', highScore);
             }
             document.getElementById('highScore').textContent = highScore;
+            
             startScreen.style.display = 'flex';
+            startScreen.style.opacity = '1';
             startScreen.innerHTML = `
                 <h1>¡Fin del juego!</h1>
                 <p>Puntuación: ${score}</p>
                 <p>Mejor: ${highScore}</p>
-                <p>Toca para reintentar</p>
+                <button id="startButton">¡JUGAR DE NUEVO!</button>
             `;
+            
+            // Volver a asignar el evento al nuevo botón
+            document.getElementById('startButton').addEventListener('click', startGame);
+            
             score = 0;
             obstacles = [];
             phase = 0;
@@ -494,16 +938,54 @@ startScreen.addEventListener('mousedown', (e) => {
             player.jumping = false;
             player.y = canvas.height - 100;
             schoolVisible = false;
+            
+            // Crear nuevas decoraciones para la pantalla de inicio
+            createDecorations();
         }
 
         function gameLoop() {
             if (!gameStarted) return;
+            
             update();
             draw();
             requestAnimationFrame(gameLoop);
         }
 
         document.getElementById('highScore').textContent = highScore;
+        
+        // Precargar imágenes para evitar parpadeos
+        [backgroundImageDay, backgroundImageSunset, backgroundImageNight, 
+         schoolImage, playerSprites.run.image, playerSprites.jump.image, 
+         balloonImage, cakeImage].forEach(img => {
+            img.onload = function() {
+                // Asegurarse de que las imágenes estén cargadas antes de mostrar el juego
+                if (img === backgroundImageDay) {
+                    draw(); // Dibujar el fondo inicial cuando esté cargado
+                }
+            };
+        });
+        
+        // Optimizaciones para dispositivos móviles
+        if (isMobile) {
+            // Reducir la calidad de renderizado en dispositivos de gama baja
+            const isLowEndDevice = navigator.deviceMemory && navigator.deviceMemory < 4;
+            if (isLowEndDevice) {
+                // Reducir la frecuencia de actualización
+                let lastTime = 0;
+                const originalGameLoop = gameLoop;
+                gameLoop = function() {
+                    if (!gameStarted) return;
+                    
+                    const now = performance.now();
+                    if (now - lastTime > 33) { // Aproximadamente 30 FPS
+                        lastTime = now;
+                        update();
+                        draw();
+                    }
+                    requestAnimationFrame(gameLoop);
+                };
+            }
+        }
     </script>
 </body>
 </html>
