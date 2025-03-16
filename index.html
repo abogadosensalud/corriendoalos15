@@ -18,7 +18,7 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            -webkit-tap-highlight-color: transparent; /* Elimina el resaltado al tocar en móviles */
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -32,19 +32,19 @@
             font-family: 'Montserrat', sans-serif;
             overflow: hidden;
             background-image: linear-gradient(to bottom, #f8f9fa, #e9ecef);
-            touch-action: manipulation; /* Mejora la respuesta táctil */
+            touch-action: manipulation;
         }
         
         #gameContainer {
             position: relative;
             width: 100%;
-            height: 65vh; /* Ajustado para mejor visualización en móviles */
+            height: 65vh;
             max-width: 800px;
             max-height: 500px;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            margin: 10px; /* Reducido para móviles */
+            margin: 10px;
         }
         
         #gameCanvas {
@@ -120,7 +120,7 @@
             color: var(--text);
             display: flex;
             gap: 15px;
-            width: 90%; /* Ajustado para móviles */
+            width: 90%;
             max-width: 400px;
             justify-content: center;
         }
@@ -139,19 +139,21 @@
             position: absolute;
             top: 10px;
             left: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 8px 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
             border-radius: 20px;
             font-weight: bold;
             color: var(--text);
             z-index: 10;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
-            font-size: 0.9em; /* Ajustado para móviles */
+            font-size: 1.1em;
         }
         
         .phase-name {
-            color: var(--secondary);
+            color: var(--primary);
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.3em;
         }
         
         .decorations {
@@ -193,7 +195,6 @@
             animation: fall 8s infinite linear;
         }
         
-        /* Botón de salto para móviles */
         #jumpButton {
             position: fixed;
             bottom: 20px;
@@ -202,7 +203,7 @@
             height: 60px;
             background-color: rgba(255, 107, 157, 0.7);
             border-radius: 50%;
-            display: none; /* Oculto por defecto, se muestra en móviles */
+            display: none;
             justify-content: center;
             align-items: center;
             color: white;
@@ -217,7 +218,6 @@
             transform: scale(0.95);
         }
         
-        /* Indicador de orientación para móviles */
         #orientationMessage {
             position: fixed;
             top: 0;
@@ -264,7 +264,6 @@
             100% { transform: translateY(500px) rotate(405deg); }
         }
         
-        /* Media queries mejoradas para dispositivos móviles */
         @media (max-width: 768px) {
             #gameContainer {
                 height: 60vh;
@@ -295,7 +294,6 @@
             }
         }
         
-        /* Para pantallas muy pequeñas */
         @media (max-width: 360px) {
             #startScreen h1 {
                 font-size: 2em;
@@ -311,14 +309,12 @@
             }
         }
         
-        /* Para pantallas en modo retrato */
         @media (orientation: portrait) and (max-width: 600px) {
             #gameContainer {
                 height: 50vh;
             }
         }
         
-        /* Para pantallas en modo paisaje */
         @media (orientation: landscape) and (max-height: 500px) {
             #gameContainer {
                 height: 70vh;
@@ -335,7 +331,7 @@
         <div class="decorations" id="decorations"></div>
         <canvas id="gameCanvas"></canvas>
         <div class="phase-indicator" id="phaseIndicator">
-            Fase: <span class="phase-name" id="phaseName">Peluquería</span>
+            Hora: <span class="phase-name" id="clock">08:00</span>
         </div>
         <div id="startScreen">
             <h1>Corriendo a los 15</h1>
@@ -353,10 +349,8 @@
         </div>
     </div>
     
-    <!-- Botón de salto para móviles -->
     <button id="jumpButton">↑</button>
     
-    <!-- Mensaje de orientación para móviles -->
     <div id="orientationMessage">
         <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1yb3RhdGUtY3ciPjxwb2x5bGluZSBwb2ludHM9IjEgNCAxIDEwIDcgMTAiPjwvcG9seWxpbmU+PHBhdGggZD0iTTMuNTEgMTVhOSA5IDAgMSAwIDIuMTMtOS4zNkwxIDEwIj48L3BhdGg+PC9zdmc+" alt="Rotar dispositivo">
         <p>Para una mejor experiencia, gira tu dispositivo a modo horizontal</p>
@@ -370,16 +364,14 @@
         const gameContainer = document.getElementById('gameContainer');
         const startButton = document.getElementById('startButton');
         const phaseIndicator = document.getElementById('phaseIndicator');
-        const phaseName = document.getElementById('phaseName');
+        const clockElement = document.getElementById('clock');
         const decorationsContainer = document.getElementById('decorations');
         const jumpButton = document.getElementById('jumpButton');
         const orientationMessage = document.getElementById('orientationMessage');
         const dismissOrientationButton = document.getElementById('dismissOrientation');
         
-        // Detectar si es un dispositivo móvil
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
-        // Mostrar mensaje de orientación en dispositivos móviles en modo retrato
         function checkOrientation() {
             if (isMobile && window.innerHeight > window.innerWidth && window.innerWidth < 600) {
                 orientationMessage.style.display = 'flex';
@@ -388,24 +380,18 @@
             }
         }
         
-        // Comprobar orientación al cargar y al cambiar el tamaño de la ventana
         window.addEventListener('load', checkOrientation);
         window.addEventListener('resize', checkOrientation);
         
-        // Botón para descartar el mensaje de orientación
         dismissOrientationButton.addEventListener('click', function() {
             orientationMessage.style.display = 'none';
         });
 
-        // Crear decoraciones
         function createDecorations() {
             decorationsContainer.innerHTML = '';
-            
-            // Limitar el número de decoraciones en dispositivos móviles para mejorar el rendimiento
             const numBalloons = isMobile ? 3 : 5;
             const numConfetti = isMobile ? 8 : 15;
             
-            // Crear globos decorativos
             for (let i = 0; i < numBalloons; i++) {
                 const balloon = document.createElement('div');
                 balloon.className = 'decoration balloon';
@@ -416,7 +402,6 @@
                 decorationsContainer.appendChild(balloon);
             }
             
-            // Crear confeti
             for (let i = 0; i < numConfetti; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'decoration confetti';
@@ -434,24 +419,17 @@
         
         createDecorations();
 
-        // Cargar las imágenes de fondo
         const backgroundImageDay = new Image();
-        backgroundImageDay.src = 'Fondo/Fondo.jpeg'; // Reemplaza con la URL de la imagen de día
+        backgroundImageDay.src = 'Fondo/Fondo.jpeg';
         const backgroundImageSunset = new Image();
-        backgroundImageSunset.src = 'Fondo/Fondo_atardecer.jpeg'; // Reemplaza con la URL de la imagen de atardecer
+        backgroundImageSunset.src = 'Fondo/Fondo_atardecer.jpeg';
         const backgroundImageNight = new Image();
-        backgroundImageNight.src = 'Fondo/Fondo_noche.jpeg'; // Reemplaza con la URL de la imagen de noche
+        backgroundImageNight.src = 'Fondo/Fondo_noche.jpeg';
        
-        let transitionStarted = {
-            2: false, // Para fase 2 (Vestuario)
-            3: false  // Para fase 3 (Salón)
-        };
-
-        let currentBackground = backgroundImageDay; // Fondo inicial
+        let transitionStarted = { 2: false, 3: false };
+        let currentBackground = backgroundImageDay;
         let backgroundTransitionProgress = 0;
-        const backgroundTransitionSpeed = 0.02; // Ajusta para la velocidad de transición
 
-        // Cargar la imagen de la escuela
         const schoolImage = new Image();
         schoolImage.src = 'Fondo/Saint Jean.png';
         let schoolX = canvas.width;
@@ -459,7 +437,6 @@
         let schoolWidth = 200;
         let schoolHeight = 200;
 
-        // Variables del juego
         let gameStarted = false;
         let score = 0;
         let highScore = localStorage.getItem('highScore') || 0;
@@ -469,7 +446,6 @@
         let minObstacleGap = 60;
         let gameTime = 0;
 
-        // Sprites del jugador
         const playerSprites = {
             run: {
                 image: new Image(),
@@ -490,7 +466,6 @@
         playerSprites.run.image.src = "Sprites/sprites_giu_corriendo.png";
         playerSprites.jump.image.src = "Sprites/sprites_giu_saltando (1).png";
 
-        // Globos (Obstáculos)
         const balloonImage = new Image();
         balloonImage.src = "Enemigos/balloons.png";
         const numBalloonsPerRow = 3;
@@ -498,27 +473,49 @@
         const balloonSpriteWidth = 1024 / numBalloonsPerRow;
         const balloonSpriteHeight = 1024 / numBalloonsPerCol;
 
-        // Torta (Obstáculo)
         const cakeImage = new Image();
-        cakeImage.src = "Enemigos/cakes.png"; // Reemplaza con tu imagen de tortas
-        const numCakesPerRow = 3; // Numero de tortas por fila en la imagen
-        const cakeSpriteWidth = 1024 / numCakesPerRow; // Ancho de cada torta en la imagen
-        const cakeSpriteHeight = 1024 / numCakesPerRow; // Alto de cada torta en la imagen
+        cakeImage.src = "Enemigos/cakes.png";
+        const numCakesPerRow = 3;
+        const cakeSpriteWidth = 1024 / numCakesPerRow;
+        const cakeSpriteHeight = 1024 / numCakesPerRow;
 
-        // Obstáculos y fases
         let obstacles = [];
         let phase = 0;
         const phases = [
-            { name: 'Peluquería', difficulty: 1, color: '#FFB6C1' }, // Fase 0: Fondo de día
-            { name: 'Maquillaje', difficulty: 1.5, color: '#98FB98' },   // Fase 1: Fondo de día
-            { name: 'Vestuario', difficulty: 2, color: '#DDA0DD' },    // Fase 2: Transición a atardecer
-            { name: 'Salón', difficulty: 2.5, color: '#FFD700' }       // Fase 3: Transición a noche
+            { name: 'Peluquería', difficulty: 1, color: '#FFB6C1' },
+            { name: 'Maquillaje', difficulty: 1.5, color: '#98FB98' },
+            { name: 'Vestuario', difficulty: 2, color: '#DDA0DD' },
+            { name: 'Salón', difficulty: 2.5, color: '#FFD700' }
         ];
 
-        // Definir 'player' antes de usarlo en resizeCanvas
+        const phaseObstacles = [
+            [
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 0 },
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 1 },
+                { type: 'torta', width: 50, height: 50, y: canvas.height - 100 }
+            ],
+            [
+                { type: 'globo', width: 30, height: 30, y: canvas.height - 180, high: true, balloonIndex: 2 },
+                { type: 'globo', width: 30, height: 30, y: canvas.height - 70, high: false, balloonIndex: 3 },
+                { type: 'torta', width: 40, height: 40, y: canvas.height - 100 }
+            ],
+            [
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 4 },
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 5 },
+                { type: 'torta', width: 50, height: 50, y: canvas.height - 100 }
+            ],
+            [
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 6 },
+                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 7 },
+                { type: 'torta', width: 50, height: 50, y: canvas.height - 100 }
+            ]
+        ];
+
+        let phaseDistance = 0;
+
         const player = {
             x: 50,
-            y: 0, // Valor inicial temporal, se ajustará en resizeCanvas
+            y: 0,
             width: 80,
             height: 80,
             dy: 0,
@@ -530,36 +527,11 @@
             jumpPhase: 0
         };
 
-        // Definir phaseObstacles ANTES de usarlo en updateObstaclePositions
-        const phaseObstacles = [
-            [
-                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 0 },
-                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 1 },
-                { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
-            ],
-            [
-                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 2 },
-                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 3 },
-                { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
-            ],
-            [
-                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 4 },
-                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 5 },
-                { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
-            ],
-            [
-                { type: 'globo', width: 40, height: 40, y: canvas.height - 180, high: true, balloonIndex: 6 },
-                { type: 'globo', width: 40, height: 40, y: canvas.height - 70, high: false, balloonIndex: 7 },
-                { type: 'torta', width: 50, height: 50, y: canvas.height - 100} // Tamaño reducido
-            ]
-        ];
+        let gameClock = { hours: 8, minutes: 0 };
+        const totalGameDuration = 12000; // Duración ajustada para que el tiempo avance más rápido
+        const minutesPerFrame = (14 * 60) / totalGameDuration;
 
-        let phaseDistance = 0;
-        let nextPhaseAt = 1000;
-
-        // Función para actualizar posiciones de obstáculos
         function updateObstaclePositions() {
-            // Actualizar las posiciones Y de los obstáculos basados en la nueva altura del canvas
             phaseObstacles.forEach((obstacles, phaseIndex) => {
                 obstacles.forEach(obstacle => {
                     if (obstacle.high) {
@@ -567,14 +539,12 @@
                     } else {
                         obstacle.y = canvas.height - 70;
                     }
-                    
                     if (obstacle.type === 'torta') {
                         obstacle.y = canvas.height - 100;
                     }
                 });
             });
             
-            // Actualizar obstáculos existentes
             obstacles.forEach(obs => {
                 if (obs.high) {
                     obs.y = canvas.height - 180;
@@ -586,31 +556,26 @@
             });
         }
 
-        // Ajustar tamaño del canvas dinámicamente
         function resizeCanvas() {
             canvas.width = gameContainer.clientWidth;
             canvas.height = gameContainer.clientHeight;
-            player.y = canvas.height - 100; // Ahora player está definido
+            player.y = canvas.height - 100;
             
-            // Ajustar tamaños para dispositivos móviles
             if (isMobile) {
-                // Hacer el personaje un poco más grande en pantallas pequeñas para mejor visibilidad
                 const screenWidthRatio = Math.min(1, window.innerWidth / 768);
                 player.width = Math.max(60, 80 * screenWidthRatio);
                 player.height = Math.max(60, 80 * screenWidthRatio);
             }
             
-            // Actualizar posiciones de obstáculos si es necesario
             updateObstaclePositions();
         }
         
         window.addEventListener('resize', resizeCanvas);
-        resizeCanvas(); // Llamada inicial después de definir player
+        resizeCanvas();
 
-        // Controles para PC y móvil
         function jump() {
             if (!gameStarted) {
-                startGame(); // Iniciar el juego al tocar la pantalla
+                startGame();
             } else if (!player.jumping) {
                 player.jumping = true;
                 player.dy = -12;
@@ -621,9 +586,7 @@
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                jump();
-            }
+            if (e.code === 'Space') jump();
         });
 
         canvas.addEventListener('touchstart', (e) => {
@@ -631,19 +594,14 @@
             jump();
         });
 
-        canvas.addEventListener('mousedown', (e) => {
-            jump();
-        });
+        canvas.addEventListener('mousedown', jump);
         
-        // Botón de salto para móviles
         jumpButton.addEventListener('touchstart', (e) => {
             e.preventDefault();
             jump();
         });
         
-        jumpButton.addEventListener('mousedown', (e) => {
-            jump();
-        });
+        jumpButton.addEventListener('mousedown', jump);
 
         startButton.addEventListener('click', startGame);
         startScreen.addEventListener('touchstart', (e) => {
@@ -665,24 +623,46 @@
             phase = 0;
             obstacles = [];
             phaseDistance = 0;
-            nextPhaseAt = 1000;
             gameSpeed = 5;
+            gameClock = { hours: 8, minutes: 0 };
+            clockElement.textContent = '08:00';
             
             schoolVisible = false;
+            schoolX = canvas.width;
             currentBackground = backgroundImageDay;
             backgroundTransitionProgress = 0;
+            transitionStarted = { 2: false, 3: false };
             
-            // Actualizar el indicador de fase
-            updatePhaseIndicator();
-            
-            // Iniciar el bucle del juego
             gameLoop();
         }
 
-        function updatePhaseIndicator() {
-            const currentPhase = phases[Math.min(phase, phases.length - 1)];
-            phaseName.textContent = currentPhase.name;
-            phaseName.style.color = currentPhase.color;
+        function updateClock() {
+            let totalMinutesPassed = Math.floor(gameTime * minutesPerFrame);
+            gameClock.hours = 8 + Math.floor(totalMinutesPassed / 60);
+            gameClock.minutes = totalMinutesPassed % 60;
+
+            let hoursStr = gameClock.hours.toString().padStart(2, '0');
+            let minutesStr = gameClock.minutes.toString().padStart(2, '0');
+            clockElement.textContent = `${hoursStr}:${minutesStr}`;
+
+            if (gameClock.hours < 12 || (gameClock.hours === 12 && gameClock.minutes === 0)) {
+                phase = 0;
+            } else if (gameClock.hours < 17 || (gameClock.hours === 17 && gameClock.minutes === 0)) {
+                phase = 1;
+            } else if (gameClock.hours < 20 || (gameClock.hours === 20 && gameClock.minutes === 0)) {
+                phase = 2;
+            } else {
+                phase = 3;
+                checkGameEnd();
+            }
+
+            updateBackground();
+        }
+
+        function checkGameEnd() {
+            if (gameClock.hours >= 22) {
+                endGame(true); // Termina el juego con victoria a las 22:00
+            }
         }
 
         function spawnObstacle() {
@@ -692,12 +672,10 @@
             const availableObstacles = phaseObstacles[phaseIndex];
             const obstacleTemplate = availableObstacles[Math.floor(Math.random() * availableObstacles.length)];
             
-            // Ajustar tamaño de obstáculos para móviles
             let obstacleWidth = obstacleTemplate.width;
             let obstacleHeight = obstacleTemplate.height;
             
             if (isMobile && window.innerWidth < 500) {
-                // Hacer obstáculos un poco más grandes en pantallas pequeñas
                 obstacleWidth = Math.floor(obstacleWidth * 1.2);
                 obstacleHeight = Math.floor(obstacleHeight * 1.2);
             }
@@ -714,7 +692,7 @@
             if (obstacleTemplate.type === 'globo') {
                 obstacle.balloonIndex = obstacleTemplate.balloonIndex;
             } else if (obstacleTemplate.type === 'torta') {
-                obstacle.cakeIndex = Math.floor(Math.random() * 9); // Selecciona un índice de torta aleatorio (0-8)
+                obstacle.cakeIndex = Math.floor(Math.random() * 9);
             }
 
             obstacles.push(obstacle);
@@ -757,28 +735,22 @@
 
             gameTime++;
             score++;
-            phaseDistance++;
+            phaseDistance += gameSpeed;
             document.getElementById('score').textContent = score;
 
-            if (phaseDistance >= nextPhaseAt && phase < phases.length) {
-                gameSpeed *= phases[phase].difficulty;
-                phase++;
-                phaseDistance = 0;
-                nextPhaseAt *= 1.5;
-                updateBackground(); // Actualizar fondo al cambiar de fase
-                updatePhaseIndicator(); // Actualizar indicador de fase
-            }
+            updateClock();
 
-            const showSchoolInitialTime = 15 * 60;
-            const showSchoolRepeatTime = 50 * 60;
-            if (gameTime === showSchoolInitialTime || (gameTime > showSchoolInitialTime && (gameTime - showSchoolInitialTime) % showSchoolRepeatTime === 0)) {
+            // Mostrar la escuela a las 8:30
+            if (gameClock.hours === 8 && gameClock.minutes === 30 && !schoolVisible) {
                 showSchool();
             }
+
+            gameSpeed = 5 * phases[Math.min(phase, phases.length - 1)].difficulty;
 
             if (schoolVisible) {
                 schoolX -= gameSpeed * 0.5;
                 if (schoolX < -schoolWidth) {
-                    schoolVisible = false;
+                    schoolVisible = false; // Desaparece cuando sale del canvas
                 }
             }
 
@@ -806,7 +778,6 @@
             }
 
             lastObstacleTime++;
-            // Ajustar la frecuencia de obstáculos para móviles
             const obstacleFrequency = isMobile ? 0.012 : 0.015;
             if (Math.random() < obstacleFrequency * (phase + 1) && lastObstacleTime > minObstacleGap) {
                 spawnObstacle();
@@ -816,16 +787,13 @@
             obstacles = obstacles.filter(obs => obs.x > -obs.width);
             obstacles.forEach(obs => {
                 obs.x -= gameSpeed;
-
-                // Definir márgenes para la colisión
-                // Hacer la colisión un poco más permisiva en móviles
-                const marginX = isMobile ? 15 : 10; // Margen horizontal
-                const marginY = isMobile ? 15 : 10; // Margen vertical
+                const marginX = isMobile ? 15 : 10;
+                const marginY = isMobile ? 15 : 10;
                 if (player.x + marginX < obs.x + obs.width &&
                     player.x + player.width - marginX > obs.x &&
                     player.y + marginY < obs.y + obs.height &&
                     player.y + player.height - marginY > obs.y) {
-                    endGame();
+                    endGame(false);
                 }
             });
         }
@@ -841,14 +809,12 @@
                 ctx.drawImage(schoolImage, schoolX, canvas.height - schoolHeight - 40, schoolWidth, schoolHeight);
             }
 
-            // Dibujar el suelo
             const groundGradient = ctx.createLinearGradient(0, canvas.height - 40, 0, canvas.height);
             groundGradient.addColorStop(0, '#8B4513');
             groundGradient.addColorStop(1, '#654321');
             ctx.fillStyle = groundGradient;
             ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
             
-            // Dibujar líneas en el suelo para dar efecto de movimiento
             ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
             ctx.lineWidth = 2;
             for (let i = 0; i < canvas.width; i += 30) {
@@ -906,24 +872,33 @@
             });
         }
 
-        function endGame() {
+        function endGame(isVictory = false) {
             gameStarted = false;
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem('highScore', highScore);
             }
             document.getElementById('highScore').textContent = highScore;
-            
+
             startScreen.style.display = 'flex';
             startScreen.style.opacity = '1';
-            startScreen.innerHTML = `
-                <h1>¡Fin del juego!</h1>
-                <p>Puntuación: ${score}</p>
-                <p>Mejor: ${highScore}</p>
-                <button id="startButton">¡JUGAR DE NUEVO!</button>
-            `;
-            
-            // Volver a asignar el evento al nuevo botón
+            if (isVictory) {
+                startScreen.innerHTML = `
+                    <h1>¡Felicidades!</h1>
+                    <p>Giu llegó a su fiesta a las 22:00</p>
+                    <p>Puntuación: ${score}</p>
+                    <p>Mejor: ${highScore}</p>
+                    <button id="startButton">¡JUGAR DE NUEVO!</button>
+                `;
+            } else {
+                startScreen.innerHTML = `
+                    <h1>¡Fin del juego!</h1>
+                    <p>Puntuación: ${score}</p>
+                    <p>Mejor: ${highScore}</p>
+                    <button id="startButton">¡JUGAR DE NUEVO!</button>
+                `;
+            }
+
             document.getElementById('startButton').addEventListener('click', startGame);
             
             score = 0;
@@ -931,21 +906,17 @@
             phase = 0;
             gameSpeed = 5;
             phaseDistance = 0;
-            nextPhaseAt = 1000;
             lastObstacleTime = 0;
             player.frameIndex = 0;
             player.currentAnimation = 'run';
             player.jumping = false;
             player.y = canvas.height - 100;
             schoolVisible = false;
-            
-            // Crear nuevas decoraciones para la pantalla de inicio
             createDecorations();
         }
 
         function gameLoop() {
             if (!gameStarted) return;
-            
             update();
             draw();
             requestAnimationFrame(gameLoop);
@@ -953,31 +924,25 @@
 
         document.getElementById('highScore').textContent = highScore;
         
-        // Precargar imágenes para evitar parpadeos
         [backgroundImageDay, backgroundImageSunset, backgroundImageNight, 
          schoolImage, playerSprites.run.image, playerSprites.jump.image, 
          balloonImage, cakeImage].forEach(img => {
             img.onload = function() {
-                // Asegurarse de que las imágenes estén cargadas antes de mostrar el juego
                 if (img === backgroundImageDay) {
-                    draw(); // Dibujar el fondo inicial cuando esté cargado
+                    draw();
                 }
             };
         });
         
-        // Optimizaciones para dispositivos móviles
         if (isMobile) {
-            // Reducir la calidad de renderizado en dispositivos de gama baja
             const isLowEndDevice = navigator.deviceMemory && navigator.deviceMemory < 4;
             if (isLowEndDevice) {
-                // Reducir la frecuencia de actualización
                 let lastTime = 0;
                 const originalGameLoop = gameLoop;
                 gameLoop = function() {
                     if (!gameStarted) return;
-                    
                     const now = performance.now();
-                    if (now - lastTime > 33) { // Aproximadamente 30 FPS
+                    if (now - lastTime > 33) {
                         lastTime = now;
                         update();
                         draw();
