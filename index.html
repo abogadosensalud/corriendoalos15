@@ -410,6 +410,7 @@
                 confetti.style.animationDelay = `${Math.random() * 8}s`;
                 decorationsContainer.appendChild(confetti);
             }
+            decorationsContainer.style.display = 'block'; // Asegurar que esté visible al crearse
         }
         
         function getRandomColor() {
@@ -417,7 +418,7 @@
             return colors[Math.floor(Math.random() * colors.length)];
         }
         
-        createDecorations();
+        createDecorations(); // Crear decoraciones al inicio (pantalla de presentación)
 
         const backgroundImageDay = new Image();
         backgroundImageDay.src = 'Fondo/Fondo.jpeg';
@@ -528,7 +529,7 @@
         };
 
         let gameClock = { hours: 8, minutes: 0 };
-        const totalGameDuration = 12000; // Duración ajustada para que el tiempo avance más rápido
+        const totalGameDuration = 12000;
         const minutesPerFrame = (14 * 60) / totalGameDuration;
 
         function updateObstaclePositions() {
@@ -633,6 +634,8 @@
             backgroundTransitionProgress = 0;
             transitionStarted = { 2: false, 3: false };
             
+            decorationsContainer.style.display = 'none'; // Ocultar decoraciones durante el juego
+            
             gameLoop();
         }
 
@@ -661,7 +664,7 @@
 
         function checkGameEnd() {
             if (gameClock.hours >= 22) {
-                endGame(true); // Termina el juego con victoria a las 22:00
+                endGame(true);
             }
         }
 
@@ -740,7 +743,6 @@
 
             updateClock();
 
-            // Mostrar la escuela a las 8:30
             if (gameClock.hours === 8 && gameClock.minutes === 30 && !schoolVisible) {
                 showSchool();
             }
@@ -750,7 +752,7 @@
             if (schoolVisible) {
                 schoolX -= gameSpeed * 0.5;
                 if (schoolX < -schoolWidth) {
-                    schoolVisible = false; // Desaparece cuando sale del canvas
+                    schoolVisible = false;
                 }
             }
 
@@ -912,7 +914,7 @@
             player.jumping = false;
             player.y = canvas.height - 100;
             schoolVisible = false;
-            createDecorations();
+            createDecorations(); // Volver a crear y mostrar decoraciones al final
         }
 
         function gameLoop() {
