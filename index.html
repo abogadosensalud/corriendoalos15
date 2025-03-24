@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <title>Corriendo a los 15</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Montserrat:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
         
         :root {
             --primary: #ff6b9d;
@@ -12,6 +12,7 @@
             --accent: #ffd166;
             --background: #f8f9fa;
             --text: #333;
+            --pixel-border: 4px solid #333;
         }
         
         * {
@@ -29,7 +30,7 @@
             justify-content: center;
             background: var(--background);
             min-height: 100vh;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'VT323', monospace;
             overflow: hidden;
             background-image: linear-gradient(to bottom, #f8f9fa, #e9ecef);
             touch-action: manipulation;
@@ -41,10 +42,12 @@
             height: 65vh;
             max-width: 800px;
             max-height: 500px;
-            border-radius: 12px;
+            border-radius: 0;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             margin: 10px;
+            border: var(--pixel-border);
+            image-rendering: pixelated;
         }
         
         #gameCanvas {
@@ -52,6 +55,7 @@
             height: 100%;
             background: #87CEEB;
             display: block;
+            image-rendering: pixelated;
         }
         
         #startScreen {
@@ -60,7 +64,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, rgba(157, 78, 221, 0.9), rgba(255, 107, 157, 0.9));
+            background: #000;
             color: white;
             display: flex;
             flex-direction: column;
@@ -69,60 +73,70 @@
             text-align: center;
             padding: 20px;
             transition: opacity 0.5s ease;
+            image-rendering: pixelated;
+            background-image: url('data:image/png;base64,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');
+            background-repeat: repeat;
         }
         
         #startScreen h1 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 3.5em;
-            margin: 0.3em 0;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-family: 'Press Start 2P', cursive;
+            font-size: 2.5em;
+            margin: 0.5em 0;
+            text-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            color: #ffd166;
             animation: pulse 2s infinite;
+            letter-spacing: -1px;
         }
         
         #startScreen p {
-            font-size: 1.2em;
+            font-size: 1.5em;
             margin: 0.5em 0;
             max-width: 80%;
+            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
         }
         
-        #startButton {
+        .pixel-button {
             margin-top: 20px;
             padding: 12px 30px;
             background-color: var(--accent);
             color: var(--text);
-            border: none;
-            border-radius: 50px;
+            border: 4px solid #333;
             font-size: 1.2em;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.1s ease;
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+            font-family: 'Press Start 2P', cursive;
+            text-transform: uppercase;
+            image-rendering: pixelated;
         }
         
-        #startButton:hover {
+        .pixel-button:hover {
             transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
         }
         
-        #startButton:active {
+        .pixel-button:active {
             transform: translateY(1px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
         }
         
         #scoreBoard {
-            background-color: white;
+            background-color: #333;
             padding: 10px 20px;
-            border-radius: 50px;
+            border-radius: 0;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             margin-top: 15px;
-            font-size: 1.2em;
+            font-size: 1.5em;
             font-weight: bold;
-            color: var(--text);
+            color: white;
             display: flex;
             gap: 15px;
             width: 90%;
             max-width: 400px;
             justify-content: center;
+            border: var(--pixel-border);
+            font-family: 'Press Start 2P', cursive;
         }
         
         .score-item {
@@ -132,27 +146,28 @@
         }
         
         .score-value {
-            color: var(--primary);
+            color: var(--accent);
         }
         
         .phase-indicator {
             position: absolute;
             top: 10px;
             left: 10px;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(0, 0, 0, 0.7);
             padding: 10px 20px;
-            border-radius: 20px;
+            border-radius: 0;
             font-weight: bold;
-            color: var(--text);
+            color: white;
             z-index: 10;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             font-size: 1.1em;
+            border: 2px solid #fff;
+            font-family: 'Press Start 2P', cursive;
         }
         
         .phase-name {
-            color: var(--primary);
-            font-family: 'Dancing Script', cursive;
+            color: var(--accent);
             font-size: 1.3em;
         }
         
@@ -173,8 +188,9 @@
             width: 30px;
             height: 40px;
             background-color: var(--primary);
-            border-radius: 50%;
+            border-radius: 0;
             animation: float 5s infinite ease-in-out;
+            border: 2px solid #333;
         }
         
         .balloon::after {
@@ -193,6 +209,7 @@
             background-color: var(--accent);
             transform: rotate(45deg);
             animation: fall 8s infinite linear;
+            border: 1px solid #333;
         }
         
         #jumpButton {
@@ -201,8 +218,8 @@
             right: 20px;
             width: 60px;
             height: 60px;
-            background-color: rgba(255, 107, 157, 0.7);
-            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 0;
             display: none;
             justify-content: center;
             align-items: center;
@@ -210,8 +227,9 @@
             font-size: 24px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
             z-index: 100;
-            border: none;
+            border: var(--pixel-border);
             outline: none;
+            font-family: 'Press Start 2P', cursive;
         }
         
         #jumpButton:active {
@@ -233,6 +251,7 @@
             text-align: center;
             z-index: 1000;
             padding: 20px;
+            font-family: 'Press Start 2P', cursive;
         }
         
         #orientationMessage img {
@@ -240,6 +259,39 @@
             height: 80px;
             margin-bottom: 20px;
             animation: rotate 2s infinite;
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .share-button {
+            padding: 8px 15px;
+            border: 2px solid #fff;
+            background-color: #333;
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .share-button.whatsapp {
+            background-color: #25D366;
+        }
+        
+        .share-button.instagram {
+            background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+        }
+        
+        .share-button img {
+            width: 20px;
+            height: 20px;
         }
         
         @keyframes rotate {
@@ -268,43 +320,52 @@
             #gameContainer {
                 height: 60vh;
                 margin: 5px;
-                border-radius: 8px;
             }
             
             #startScreen h1 {
-                font-size: 2.5em;
+                font-size: 1.8em;
             }
             
             #startScreen p {
-                font-size: 1em;
+                font-size: 1.2em;
             }
             
             #scoreBoard {
-                font-size: 1em;
+                font-size: 0.8em;
                 padding: 8px 15px;
             }
             
-            #startButton {
+            .pixel-button {
                 padding: 10px 25px;
-                font-size: 1em;
+                font-size: 0.9em;
             }
             
             #jumpButton {
                 display: flex;
             }
+            
+            .phase-indicator {
+                font-size: 0.7em;
+                padding: 5px 10px;
+            }
         }
         
         @media (max-width: 360px) {
             #startScreen h1 {
-                font-size: 2em;
+                font-size: 1.5em;
             }
             
             #startScreen p {
-                font-size: 0.9em;
+                font-size: 1em;
             }
             
             .phase-indicator {
-                font-size: 0.8em;
+                font-size: 0.6em;
+                padding: 5px 10px;
+            }
+            
+            .share-button {
+                font-size: 0.6em;
                 padding: 5px 10px;
             }
         }
@@ -323,6 +384,16 @@
             #scoreBoard {
                 margin-top: 5px;
             }
+            
+            #startScreen h1 {
+                font-size: 1.5em;
+                margin: 0.2em 0;
+            }
+            
+            #startScreen p {
+                font-size: 1em;
+                margin: 0.2em 0;
+            }
         }
     </style>
 </head>
@@ -337,12 +408,12 @@
             <h1>Corriendo a los 15</h1>
             <p>Ayudá a Giu a llegar a su fiesta de 15</p>
             <p>¡Esquiva los obstáculos y llega a tiempo!</p>
-            <button id="startButton">¡COMENZAR!</button>
+            <button id="startButton" class="pixel-button">¡COMENZAR!</button>
         </div>
     </div>
     <div id="scoreBoard">
         <div class="score-item">
-            Puntuación: <span class="score-value" id="score">0</span>
+            Puntos: <span class="score-value" id="score">0</span>
         </div>
         <div class="score-item">
             Mejor: <span class="score-value" id="highScore">0</span>
@@ -354,7 +425,7 @@
     <div id="orientationMessage">
         <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY2xhc3M9ImZlYXRoZXIgZmVhdGhlci1yb3RhdGUtY3ciPjxwb2x5bGluZSBwb2ludHM9IjEgNCAxIDEwIDcgMTAiPjwvcG9seWxpbmU+PHBhdGggZD0iTTMuNTEgMTVhOSA5IDAgMSAwIDIuMTMtOS4zNkwxIDEwIj48L3BhdGg+PC9zdmc+" alt="Rotar dispositivo">
         <p>Para una mejor experiencia, gira tu dispositivo a modo horizontal</p>
-        <button id="dismissOrientation">Continuar de todos modos</button>
+        <button id="dismissOrientation" class="pixel-button">Continuar</button>
     </div>
 
     <script>
@@ -371,6 +442,7 @@
         const dismissOrientationButton = document.getElementById('dismissOrientation');
         
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        const isTablet = /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent) || (window.innerWidth >= 768 && window.innerWidth <= 1024);
         
         function checkOrientation() {
             if (isMobile && window.innerHeight > window.innerWidth && window.innerWidth < 600) {
@@ -431,12 +503,39 @@
         let currentBackground = backgroundImageDay;
         let backgroundTransitionProgress = 0;
 
+        // Cargar las imágenes de los lugares
         const schoolImage = new Image();
-        schoolImage.src = 'Fondo/Saint Jean.png';
-        let schoolX = canvas.width;
+        schoolImage.src = 'Saint Jean.png'; // Saint Jean
+        
+        const charmantImage = new Image();
+        charmantImage.src = 'Cartel_Charmant.png'; // Cartel Charmant
+        
+        const campitoImage = new Image();
+        campitoImage.src = 'El campito.png'; // El campito
+        
+        const hogwartsImage = new Image();
+        hogwartsImage.src = 'Fondo/Hogwarts.png'; // Hogwarts
+
+        // Variables para controlar la visibilidad de las imágenes
+        let charmantVisible = false;
+        let charmantX = canvas.width;
+        let charmantWidth = 180;
+        let charmantHeight = 180;
+        
         let schoolVisible = false;
+        let schoolX = canvas.width;
         let schoolWidth = 200;
         let schoolHeight = 200;
+        
+        let campitoVisible = false;
+        let campitoX = canvas.width;
+        let campitoWidth = 200;
+        let campitoHeight = 180;
+        
+        let hogwartsVisible = false;
+        let hogwartsX = canvas.width;
+        let hogwartsWidth = 220;
+        let hogwartsHeight = 220;
 
         let gameStarted = false;
         let score = 0;
@@ -560,14 +659,28 @@
         function resizeCanvas() {
             canvas.width = gameContainer.clientWidth;
             canvas.height = gameContainer.clientHeight;
-            player.y = canvas.height - 100;
             
-            if (isMobile) {
+            // Ajustar tamaños según el dispositivo
+            if (isMobile || isTablet) {
                 const screenWidthRatio = Math.min(1, window.innerWidth / 768);
                 player.width = Math.max(60, 80 * screenWidthRatio);
                 player.height = Math.max(60, 80 * screenWidthRatio);
+                
+                // Ajustar tamaños de las imágenes para dispositivos móviles
+                charmantWidth = Math.max(120, 180 * screenWidthRatio);
+                charmantHeight = Math.max(120, 180 * screenWidthRatio);
+                
+                schoolWidth = Math.max(140, 200 * screenWidthRatio);
+                schoolHeight = Math.max(140, 200 * screenWidthRatio);
+                
+                campitoWidth = Math.max(140, 200 * screenWidthRatio);
+                campitoHeight = Math.max(120, 180 * screenWidthRatio);
+                
+                hogwartsWidth = Math.max(160, 220 * screenWidthRatio);
+                hogwartsHeight = Math.max(160, 220 * screenWidthRatio);
             }
             
+            player.y = canvas.height - 100;
             updateObstaclePositions();
         }
         
@@ -612,6 +725,20 @@
             }
         });
 
+        // Función para compartir en WhatsApp
+        function shareOnWhatsApp(score) {
+            const text = encodeURIComponent(`¡Logré ${score} puntos en Corriendo a los 15! ¡Intenta superarme!`);
+            window.open(`https://wa.me/?text=${text}`, '_blank');
+        }
+        
+        // Función para compartir en Instagram (abre la app)
+        function shareOnInstagram() {
+            // Instagram no permite compartir directamente, pero podemos abrir la app
+            window.open('instagram://app', '_blank');
+            // Como alternativa, podemos mostrar un mensaje de cómo compartir
+            alert('Para compartir en Instagram:\n1. Toma una captura de pantalla\n2. Abre Instagram\n3. Crea una historia o publicación con la captura');
+        }
+
         function startGame() {
             gameStarted = true;
             startScreen.style.opacity = '0';
@@ -628,8 +755,19 @@
             gameClock = { hours: 8, minutes: 0 };
             clockElement.textContent = '08:00';
             
+            // Reiniciar la visibilidad de las imágenes
+            charmantVisible = false;
+            charmantX = canvas.width;
+            
             schoolVisible = false;
             schoolX = canvas.width;
+            
+            campitoVisible = false;
+            campitoX = canvas.width;
+            
+            hogwartsVisible = false;
+            hogwartsX = canvas.width;
+            
             currentBackground = backgroundImageDay;
             backgroundTransitionProgress = 0;
             transitionStarted = { 2: false, 3: false };
@@ -660,6 +798,23 @@
             }
 
             updateBackground();
+            
+            // Mostrar las imágenes en los momentos específicos
+            if (gameClock.hours === 8 && gameClock.minutes === 30 && !charmantVisible) {
+                showCharmant();
+            }
+            
+            if (gameClock.hours === 9 && gameClock.minutes === 30 && !schoolVisible) {
+                showSchool();
+            }
+            
+            if (gameClock.hours === 10 && gameClock.minutes === 30 && !campitoVisible) {
+                showCampito();
+            }
+            
+            if (gameClock.hours === 11 && gameClock.minutes === 30 && !hogwartsVisible) {
+                showHogwarts();
+            }
         }
 
         function checkGameEnd() {
@@ -701,9 +856,25 @@
             obstacles.push(obstacle);
         }
 
+        // Funciones para mostrar las imágenes en momentos específicos
+        function showCharmant() {
+            charmantX = canvas.width;
+            charmantVisible = true;
+        }
+        
         function showSchool() {
             schoolX = canvas.width;
             schoolVisible = true;
+        }
+        
+        function showCampito() {
+            campitoX = canvas.width;
+            campitoVisible = true;
+        }
+        
+        function showHogwarts() {
+            hogwartsX = canvas.width;
+            hogwartsVisible = true;
         }
 
         function updateJumpAnimation() {
@@ -743,19 +914,39 @@
 
             updateClock();
 
-            if (gameClock.hours === 8 && gameClock.minutes === 30 && !schoolVisible) {
-                showSchool();
-            }
-
+            // Actualizar la velocidad del juego según la fase
             gameSpeed = 5 * phases[Math.min(phase, phases.length - 1)].difficulty;
 
+            // Actualizar posición de las imágenes visibles
+            if (charmantVisible) {
+                charmantX -= gameSpeed * 0.5;
+                if (charmantX < -charmantWidth) {
+                    charmantVisible = false;
+                }
+            }
+            
             if (schoolVisible) {
                 schoolX -= gameSpeed * 0.5;
                 if (schoolX < -schoolWidth) {
                     schoolVisible = false;
                 }
             }
+            
+            if (campitoVisible) {
+                campitoX -= gameSpeed * 0.5;
+                if (campitoX < -campitoWidth) {
+                    campitoVisible = false;
+                }
+            }
+            
+            if (hogwartsVisible) {
+                hogwartsX -= gameSpeed * 0.5;
+                if (hogwartsX < -hogwartsWidth) {
+                    hogwartsVisible = false;
+                }
+            }
 
+            // Actualizar animación del jugador
             player.tickCount++;
             if (player.tickCount > player.ticksPerFrame) {
                 player.tickCount = 0;
@@ -767,9 +958,12 @@
                 }
             }
 
+            // Física del jugador
             if (player.jumping) {
                 player.y += player.dy;
                 player.dy += gravity;
+                
+                // Si llega al suelo
                 if (player.y >= canvas.height - 100) {
                     player.y = canvas.height - 100;
                     player.jumping = false;
@@ -779,6 +973,7 @@
                 }
             }
 
+            // Generar obstáculos
             lastObstacleTime++;
             const obstacleFrequency = isMobile ? 0.012 : 0.015;
             if (Math.random() < obstacleFrequency * (phase + 1) && lastObstacleTime > minObstacleGap) {
@@ -786,6 +981,7 @@
                 lastObstacleTime = 0;
             }
 
+            // Actualizar y filtrar obstáculos
             obstacles = obstacles.filter(obs => obs.x > -obs.width);
             obstacles.forEach(obs => {
                 obs.x -= gameSpeed;
@@ -807,26 +1003,38 @@
         function draw() {
             drawBackground();
 
+            // Dibujar las imágenes de los lugares cuando estén visibles
+            if (charmantVisible) {
+                ctx.drawImage(charmantImage, charmantX, canvas.height - charmantHeight - 40, charmantWidth, charmantHeight);
+            }
+            
             if (schoolVisible) {
                 ctx.drawImage(schoolImage, schoolX, canvas.height - schoolHeight - 40, schoolWidth, schoolHeight);
             }
-
-            const groundGradient = ctx.createLinearGradient(0, canvas.height - 40, 0, canvas.height);
-            groundGradient.addColorStop(0, '#8B4513');
-            groundGradient.addColorStop(1, '#654321');
-            ctx.fillStyle = groundGradient;
-            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
             
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.lineWidth = 2;
-            for (let i = 0; i < canvas.width; i += 30) {
-                const offset = (gameTime * gameSpeed) % 30;
-                ctx.beginPath();
-                ctx.moveTo(i - offset, canvas.height - 40);
-                ctx.lineTo(i - offset + 15, canvas.height - 40);
-                ctx.stroke();
+            if (campitoVisible) {
+                ctx.drawImage(campitoImage, campitoX, canvas.height - campitoHeight - 40, campitoWidth, campitoHeight);
+            }
+            
+            if (hogwartsVisible) {
+                ctx.drawImage(hogwartsImage, hogwartsX, canvas.height - hogwartsHeight - 40, hogwartsWidth, hogwartsHeight);
             }
 
+            // Dibujar el suelo con estilo pixel art
+            ctx.fillStyle = '#654321';
+            ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+            
+            // Patrón de pixel art para el suelo
+            ctx.fillStyle = '#8B4513';
+            for (let i = 0; i < canvas.width; i += 8) {
+                for (let j = 0; j < 40; j += 8) {
+                    if ((i + j) % 16 === 0) {
+                        ctx.fillRect(i, canvas.height - 40 + j, 8, 8);
+                    }
+                }
+            }
+
+            // Dibujar el jugador
             const currentSprite = playerSprites[player.currentAnimation];
             const col = player.frameIndex % currentSprite.framesPerRow;
             const row = Math.floor(player.frameIndex / currentSprite.framesPerRow);
@@ -841,6 +1049,7 @@
                 player.width, player.height
             );
 
+            // Dibujar obstáculos
             obstacles.forEach(obs => {
                 if (obs.type === 'globo') {
                     const balloonCol = obs.balloonIndex % numBalloonsPerRow;
@@ -884,24 +1093,45 @@
 
             startScreen.style.display = 'flex';
             startScreen.style.opacity = '1';
+            
+            // Crear botones de compartir
+            const shareButtons = `
+                <div class="share-buttons">
+                    <button class="share-button whatsapp" onclick="shareOnWhatsApp(${score})">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItc2hhcmUiPjxwYXRoIGQ9Ik00IDEydjhhMiAyIDAgMCAwIDIgMmgxMmEyIDIgMCAwIDAgMi0ydi04Ij48L3BhdGg+PHBvbHlsaW5lIHBvaW50cz0iMTYgNiAxMiAyIDggNiI+PC9wb2x5bGluZT48bGluZSB4MT0iMTIiIHkxPSIyIiB4Mj0iMTIiIHkyPSIxNSI+PC9saW5lPjwvc3ZnPg==" alt="Share">
+                        WhatsApp
+                    </button>
+                    <button class="share-button instagram" onclick="shareOnInstagram()">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItc2hhcmUiPjxwYXRoIGQ9Ik00IDEydjhhMiAyIDAgMCAwIDIgMmgxMmEyIDIgMCAwIDAgMi0ydi04Ij48L3BhdGg+PHBvbHlsaW5lIHBvaW50cz0iMTYgNiAxMiAyIDggNiI+PC9wb2x5bGluZT48bGluZSB4MT0iMTIiIHkxPSIyIiB4Mj0iMTIiIHkyPSIxNSI+PC9saW5lPjwvc3ZnPg==" alt="Share">
+                        Instagram
+                    </button>
+                </div>
+            `;
+            
             if (isVictory) {
                 startScreen.innerHTML = `
-                    <h1>¡Felicidades!</h1>
+                    <h1>¡FELICIDADES!</h1>
                     <p>Giu llegó a su fiesta a las 22:00</p>
                     <p>Puntuación: ${score}</p>
                     <p>Mejor: ${highScore}</p>
-                    <button id="startButton">¡JUGAR DE NUEVO!</button>
+                    <button id="startButton" class="pixel-button">¡JUGAR DE NUEVO!</button>
+                    ${shareButtons}
                 `;
             } else {
                 startScreen.innerHTML = `
-                    <h1>¡Fin del juego!</h1>
+                    <h1>GAME OVER</h1>
                     <p>Puntuación: ${score}</p>
                     <p>Mejor: ${highScore}</p>
-                    <button id="startButton">¡JUGAR DE NUEVO!</button>
+                    <button id="startButton" class="pixel-button">¡JUGAR DE NUEVO!</button>
+                    ${shareButtons}
                 `;
             }
 
             document.getElementById('startButton').addEventListener('click', startGame);
+            
+            // Exponer las funciones de compartir al ámbito global
+            window.shareOnWhatsApp = shareOnWhatsApp;
+            window.shareOnInstagram = shareOnInstagram;
             
             score = 0;
             obstacles = [];
@@ -913,7 +1143,12 @@
             player.currentAnimation = 'run';
             player.jumping = false;
             player.y = canvas.height - 100;
+            
+            charmantVisible = false;
             schoolVisible = false;
+            campitoVisible = false;
+            hogwartsVisible = false;
+            
             createDecorations(); // Volver a crear y mostrar decoraciones al final
         }
 
@@ -927,7 +1162,8 @@
         document.getElementById('highScore').textContent = highScore;
         
         [backgroundImageDay, backgroundImageSunset, backgroundImageNight, 
-         schoolImage, playerSprites.run.image, playerSprites.jump.image, 
+         schoolImage, charmantImage, campitoImage, hogwartsImage,
+         playerSprites.run.image, playerSprites.jump.image, 
          balloonImage, cakeImage].forEach(img => {
             img.onload = function() {
                 if (img === backgroundImageDay) {
