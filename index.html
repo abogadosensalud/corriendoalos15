@@ -950,7 +950,26 @@
             // Solicitar el próximo frame
             animationFrameId = requestAnimationFrame(gameLoop);
         }
+function drawBackground() {
+            // Verifica si la imagen de fondo actual está cargada y lista
+            if (currentBackground && currentBackground.complete && currentBackground.naturalWidth > 0) {
+                // Dibuja la imagen de fondo cubriendo todo el canvas
+                ctx.drawImage(currentBackground, 0, 0, canvas.width, canvas.height);
 
+                // Nota: La lógica de transición suave (backgroundTransitionProgress)
+                // mencionada en el código original no está completamente implementada.
+                // Si quisieras una transición, tendrías que dibujar dos fondos
+                // con opacidad variable aquí. Por ahora, solo dibuja el actual.
+
+            } else {
+                // Fallback: Si la imagen no está lista, dibuja un color sólido
+                // (puedes usar el color de fondo del CSS o uno específico)
+                ctx.fillStyle = '#87CEEB'; // Un azul cielo como el del CSS inicial
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+
+      
         function drawGround() {
             // Dibujar el suelo con estilo pixel art
             ctx.fillStyle = '#654321'; // Marrón base
